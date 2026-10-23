@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Upload, Camera, Leaf, AlertCircle, CheckCircle, RefreshCw } from 'lucide-react';
+import { API_BASE_URL } from '@/lib/api';
 
 export default function DiseasePredictionPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -48,24 +49,15 @@ export default function DiseasePredictionPage() {
   };
 
   const fetchGeminiTreatment = async (disease: string) => {
-    const apiKey = 'AIzaSyDD8QW1BggDVVMLteDygHCHrD6Ff9Dy0e8';
-    const prompt = `Provide a concise description (1-2 sentences) of the plant disease "${disease}" and suggest exactly 3 bullet point treatments. Format the response as:
-Description: [Your description]
-Treatments:
-- [Treatment 1]
-- [Treatment 2]
-- [Treatment 3]`;
-
     try {
       console.log('Sending request to Gemini API for disease:', disease);
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro:generateContent?key=${apiKey}`, {
+      const response = await fetch(`${API_BASE_URL}/api/ai/disease-advice`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-        }),
+        credentials: 'include',
+        body: JSON.stringify({ disease }),
       });
 
       console.log('Gemini API response status:', response.status);

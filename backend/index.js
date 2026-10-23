@@ -1,4 +1,5 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const cors = require('cors');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
@@ -9,44 +10,67 @@ dotenv.config();
 
 const authRoutes = require('./routes/authRoutes');
 const loginRoutes = require('./routes/loginroutes');
+const aiRoutes = require('./routes/aiRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const mongoUri = process.env.MONGO_URI;
+const sessionSecret = process.env.SESSION_SECRET;
 
-// Connect to MongoDB
-connectDB();
+if (!mongoUri) {
+  throw new Error('MONGO_URI must be set');
+}
 
+if (process.env.NODE_ENV === 'production' && !sessionSecret) {
+  throw new Error('SESSION_SECRET must be set in production');
+}
+
+app.set('trust proxy', 1);
 app.use(cors({
-  origin: 'http://localhost:8080', // React frontend origin
+  origin: process.env.CORS_ORIGIN || 'http://localhost:8080',
   credentials: true
 }));
 app.use(express.json());
 
-// 🧠 Session middleware
 app.use(session({
-  secret: "yourSecretKey", // ✅ Replace with env-safe secret in prod
+  secret: sessionSecret || 'development-only-secret',
   resave: false,
   saveUninitialized: false,
   store: MongoStore.create({
-    mongoUrl: "mongodb://127.0.0.1:27017/agri", // ✅ Your MongoDB URL
-    collectionName: 'sessions',                 // Optional
+    mongoUrl: mongoUri,
+    collectionName: 'sessions',
     ttl: 60 * 60 // 1 hour
   }),
   cookie: {
     maxAge: 1000 * 60 * 60, // 1 hour
     httpOnly: true,
-    secure: false // set to true if HTTPS
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
   }
 }));
 
-// API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/auth', loginRoutes);
+app.use('/api/ai', aiRoutes);
 
 app.get('/', (req, res) => {
   res.send('Server running 🚀');
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is live at http://localhost:${PORT}`);
+app.get('/healthz', (req, res) => {
+  const isDatabaseConnected = mongoose.connection.readyState === 1;
+  res.status(isDatabaseConnected ? 200 : 503).json({
+    status: isDatabaseConnected ? 'ok' : 'database unavailable',
+  });
 });
+
+connectDB()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`Server is listening on port ${PORT}`);
+    });
+  })
+  .catch((error) => {
+    console.error('Unable to start server:', error.message);
+    process.exit(1);
+  });

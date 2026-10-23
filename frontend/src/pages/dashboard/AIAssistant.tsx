@@ -1,5 +1,6 @@
 // AIAssistant.tsx
 import { useState, useEffect, useRef } from 'react';
+import { API_BASE_URL } from '@/lib/api';
 
 // Define message types
 interface Message {
@@ -188,18 +189,16 @@ Stay professional, concise, and helpful. Use simple, farmer-friendly language. P
 
     try {
       const response = await fetch(
-        'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyDD8QW1BggDVVMLteDygHCHrD6Ff9Dy0e8',
+        `${API_BASE_URL}/api/ai/chat`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
+          credentials: 'include',
           body: JSON.stringify({
-            contents: [
-              {
-                parts: [{ text: customPrompt }],
-              },
-            ],
+            message: customPrompt,
+            language,
           }),
         }
       );
