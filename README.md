@@ -22,6 +22,26 @@ database. For development, Compose uses a local-only session secret. Before
 using the stack beyond local development, copy `.env.example` to `.env` and set
 a unique, long `SESSION_SECRET`.
 
+## Deploy to Render
+
+1. In Render, choose **New > Blueprint**, connect
+   [this GitHub repository](https://github.com/anil111004/Agrosmart), and deploy
+   its `main` branch. When prompted, provide `MONGO_URI` as a Render secret
+   using your Atlas connection string, including the `agri` database name.
+   Never add the URI to this repository. Render generates a private session
+   secret automatically. The API may fail its health check until Atlas permits
+   its connection.
+2. In the Render API service's **Connect > Outbound** menu, copy its outbound
+   IP ranges into the MongoDB Atlas network access list. The API and frontend
+   use the Singapore region.
+3. Redeploy the API service and wait for both services to become healthy. The
+   public site is
+   [agrosmart-frontend.onrender.com](https://agrosmart-frontend.onrender.com).
+
+Render's free web services may sleep when idle and take a short time to wake up.
+The API and frontend are deployed as Docker services; MongoDB remains in your
+Atlas cluster, outside Render.
+
 ![AgroSmart Homepage](agrismarthomepage.png)
 
 ---

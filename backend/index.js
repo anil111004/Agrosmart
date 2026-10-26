@@ -13,8 +13,9 @@ const loginRoutes = require('./routes/loginroutes');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+app.set('trust proxy', 1);
 app.use(cors({
-  origin: 'http://localhost:8080', // React frontend origin
+  origin: process.env.FRONTEND_ORIGIN || 'http://localhost:8080',
   credentials: true
 }));
 app.use(express.json());
@@ -32,7 +33,7 @@ app.use(session({
   cookie: {
     maxAge: 1000 * 60 * 60, // 1 hour
     httpOnly: true,
-    secure: false // set to true if HTTPS
+    secure: process.env.NODE_ENV === 'production'
   }
 }));
 

@@ -1,0 +1,33 @@
+services:
+  - type: web
+    name: agrosmart-api
+    runtime: docker
+    plan: free
+    region: singapore
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: FRONTEND_ORIGIN
+        value: https://agrosmart-frontend.onrender.com
+      - key: MONGO_URI
+        sync: false
+      - key: SESSION_SECRET
+        generateValue: true
+
+  - type: web
+    name: agrosmart-frontend
+    runtime: docker
+    plan: free
+    region: singapore
+    dockerfilePath: ./frontend/Dockerfile.render
+    dockerContext: ./frontend
+    healthCheckPath: /
+    envVars:
+      - key: API_HOST
+        fromService:
+          type: web
+          name: agrosmart-api
+          property: host

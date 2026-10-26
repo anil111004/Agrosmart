@@ -26,6 +26,7 @@ services:
       MONGO_URI: mongodb://mongodb:27017/agri
       SESSION_SECRET: ${SESSION_SECRET:-local-development-only-change-me}
       PORT: 5000
+      NODE_ENV: development
     ports:
       - "127.0.0.1:${BACKEND_PORT:-5000}:5000"
     depends_on:
