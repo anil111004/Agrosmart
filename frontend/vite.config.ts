@@ -9,6 +9,9 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    proxy: {
+      "/api": "http://127.0.0.1:5000",
+    },
   },
   preview: {
     port: 8080, // matches Render's open port

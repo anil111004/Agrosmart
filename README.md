@@ -3,6 +3,25 @@
 > **Empowering farmers and researchers with actionable, edge-optimized AI insights for resilient, data-driven farming.**  
 > *Architected and engineered end-to-end by **Anil Kakarla**.*
 
+## Run the full stack locally
+
+Install Docker Desktop, then start the frontend, API, and MongoDB together:
+
+```sh
+docker compose up --build
+```
+
+Open [http://localhost:8080](http://localhost:8080). The frontend proxies API
+requests to the backend, and Docker Compose waits for MongoDB and the API to be
+healthy before starting dependent services. The API is also available at
+[http://localhost:5000](http://localhost:5000).
+
+The database is kept in a Docker volume when the stack stops. Stop the services
+with `docker compose down`; add `-v` only if you also want to remove the local
+database. For development, Compose uses a local-only session secret. Before
+using the stack beyond local development, copy `.env.example` to `.env` and set
+a unique, long `SESSION_SECRET`.
+
 ![AgroSmart Homepage](agrismarthomepage.png)
 
 ---

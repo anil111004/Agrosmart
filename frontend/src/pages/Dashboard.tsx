@@ -41,7 +41,7 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/auth/user", {
+        const response = await fetch("/api/auth/current", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -50,8 +50,8 @@ export default function Dashboard() {
         });
 
         const data = await response.json();
-        if (response.ok && data.user) {
-          setUser({ name: data.user.name, email: data.user.email });
+        if (response.ok && data.name && data.email) {
+          setUser({ name: data.name, email: data.email });
         } else {
           console.warn("Failed to fetch user data:", data.msg);
           // Fallback to localStorage if session fetch fails

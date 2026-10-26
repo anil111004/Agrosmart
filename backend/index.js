@@ -13,9 +13,6 @@ const loginRoutes = require('./routes/loginroutes');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Connect to MongoDB
-connectDB();
-
 app.use(cors({
   origin: 'http://localhost:8080', // React frontend origin
   credentials: true
@@ -24,12 +21,12 @@ app.use(express.json());
 
 // 🧠 Session middleware
 app.use(session({
-  secret: "yourSecretKey", // ✅ Replace with env-safe secret in prod
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   store: MongoStore.create({
-    mongoUrl: "mongodb://127.0.0.1:27017/agri", // ✅ Your MongoDB URL
-    collectionName: 'sessions',                 // Optional
+    mongoUrl: process.env.MONGO_URI,
+    collectionName: 'sessions',
     ttl: 60 * 60 // 1 hour
   }),
   cookie: {
@@ -47,6 +44,8 @@ app.get('/', (req, res) => {
   res.send('Server running 🚀');
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is live at http://localhost:${PORT}`);
+connectDB().then(() => {
+  app.listen(PORT, () => {
+    console.log(`Server is live at http://localhost:${PORT}`);
+  });
 });
